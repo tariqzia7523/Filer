@@ -1,11 +1,10 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    id("maven-publish")
 }
 
 android {
-    namespace = "com.filer"
+    namespace = "com.file.filer.fileer"
     compileSdk = 33
 
     defaultConfig {
@@ -41,18 +40,4 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["release"])
-
-                groupId = "com.github.tariqzia7523"
-                artifactId = "Filer"
-                version = "1.0.0"
-            }
-        }
-    }
 }
