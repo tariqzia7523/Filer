@@ -10,6 +10,10 @@ Add mevan
     mavenCentral()
     maven { url 'https://jitpack.io' }
 
+or if using settings.gradle.ktx then 
+
+     maven { url = uri("https://jitpack.io") }
+
 ## Use this in build.gradle 
 
     implementation 'com.github.tariqzia7523:filer:Tag'
