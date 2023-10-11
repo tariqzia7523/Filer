@@ -15,9 +15,9 @@ import java.io.File
 import java.util.concurrent.Executors
 import kotlin.collections.ArrayList
 
-class Fileer(var context: Activity) {
+class Filer(var context: Activity) {
 
-    private fun getExternalFileList(mimeType: String): ArrayList<MyFileModel> {
+    fun getExternalFileList(mimeType: String): ArrayList<MyFileModel> {
         Log.e("***mime","mimetype "+mimeType)
         val cr = context.contentResolver
         val uri: Uri = MediaStore.Files.getContentUri("external")
@@ -49,6 +49,7 @@ class Fileer(var context: Activity) {
     }
 
     private fun getFilesInHigerVersion( filetype :String): ArrayList<MyFileModel>{
+        Log.e("***FileType","File type is $filetype")
         val files = ArrayList<MyFileModel>()
         if(filetype.equals("word",false)){
             files.addAll(getExternalFileList( MimeTypeMap.getSingleton().getMimeTypeFromExtension("docx")!!))
@@ -56,7 +57,7 @@ class Fileer(var context: Activity) {
         }else if(filetype.equals("ppt",false)){
             files.addAll(getExternalFileList( MimeTypeMap.getSingleton().getMimeTypeFromExtension("pptx")!!))
             files.addAll(getExternalFileList( MimeTypeMap.getSingleton().getMimeTypeFromExtension("ppt")!!))
-        }else if(filetype.equals("xls",false)){
+        }else if(filetype.equals("excel",false)){
             files.addAll(getExternalFileList( MimeTypeMap.getSingleton().getMimeTypeFromExtension("xlsx")!!))
             files.addAll(getExternalFileList( MimeTypeMap.getSingleton().getMimeTypeFromExtension("xls")!!))
         }else if(filetype.equals("pdf",false)){
@@ -72,6 +73,10 @@ class Fileer(var context: Activity) {
         }else if(filetype.equals("rtf",false)){
             files.addAll(getExternalFileList( MimeTypeMap.getSingleton().getMimeTypeFromExtension("rtf")!!))
             files.addAll(getExternalFileList( "application/rtf"))
+        }else if(filetype.equals("bin",false)){
+            Log.e("***FileType","File type is $filetype called")
+            files.clear()
+            getFilesInLowerVersion(Environment.getExternalStorageDirectory().toString(),files,filetype)
         }else if(filetype.equals("all",false)){
             files.addAll(getExternalFileList( MimeTypeMap.getSingleton().getMimeTypeFromExtension("docx")!!))
             files.addAll(getExternalFileList( MimeTypeMap.getSingleton().getMimeTypeFromExtension("doc")!!))
@@ -86,12 +91,13 @@ class Fileer(var context: Activity) {
             files.addAll(getExternalFileList( MimeTypeMap.getSingleton().getMimeTypeFromExtension("csv")!!))
             files.addAll(getExternalFileList( MimeTypeMap.getSingleton().getMimeTypeFromExtension("rtf")!!))
             files.addAll(getExternalFileList( "application/rtf"))
+            getFilesInLowerVersion(Environment.getExternalStorageDirectory().toString(),files,"bin")
 
         }
         return files
     }
 
-    fun getFiles(fileType : String,filerListInterface: FileerList){
+    fun getFiles(fileType : String,filerListInterface: FilerList){
         val executor = Executors.newSingleThreadExecutor()
         val handler = Handler(Looper.getMainLooper())
 
@@ -117,7 +123,7 @@ class Fileer(var context: Activity) {
         }
 
     }
-    private fun getFilesInLowerVersion(directoryName: String, files: ArrayList<MyFileModel>, fileType : String) {
+    fun getFilesInLowerVersion(directoryName: String, files: ArrayList<MyFileModel>, fileType : String) {
 
         val directory = File(directoryName)
 
@@ -129,17 +135,11 @@ class Fileer(var context: Activity) {
                     files.add(fileToMyFile(file))
                 }else if(fileType.equals("word",false)  && (file.name.endsWith("doc") || file.name.endsWith("docx") )){
                     files.add(fileToMyFile(file))
-                }else if(fileType.equals("doc",false)  && (file.name.endsWith("doc") )){
-                    files.add(fileToMyFile(file))
-                }else if(fileType.equals("docx",false)  && (file.name.endsWith("docx") )){
-                    files.add(fileToMyFile(file))
                 }else if(fileType.equals("ppt",false)  && (file.name.endsWith("ppt") || file.name.endsWith("pptx") )){
                     files.add(fileToMyFile(file))
-                }else if(fileType.equals("excel",false) && (file.name.endsWith("xls")) || file.name.endsWith("xlsx")){
-                    files.add(fileToMyFile(file))
-                }else if(fileType.equals("xls",false) && (file.name.endsWith("xls")) ){
-                    files.add(fileToMyFile(file))
-                }else if(fileType.equals("xlsx",false) && file.name.endsWith("xlsx")){
+                }else if(fileType.equals("excel",false) && ((file.name.endsWith("xls")) || file.name.endsWith("xlsx"))){
+                    Log.e("***FileType","File type called three")
+                    Log.e("***FileType","File type $fileType file ends with ${file.name}")
                     files.add(fileToMyFile(file))
                 }else if(fileType.equals("txt",false)  && file.name.endsWith("txt")){
                     files.add(fileToMyFile(file))
@@ -151,6 +151,9 @@ class Fileer(var context: Activity) {
                     files.add(fileToMyFile(file))
                 }else if(fileType.equals("csv",false) && file.name.endsWith("csv")){
                     files.add(fileToMyFile(file))
+                }else if(fileType.equals("bin",false) && file.name.endsWith("bin")){
+                    Log.e("***FileType","File type called twice")
+                    files.add(fileToMyFile(file))
                 }else if(fileType.equals("all",false) ){
                     if(file.name.endsWith("pdf")
                         || file.name.endsWith("doc")
@@ -159,6 +162,7 @@ class Fileer(var context: Activity) {
                         || file.name.endsWith("html")
                         || file.name.endsWith("rtf")
                         || file.name.endsWith("csv")
+                        || file.name.endsWith("bin")
                         || file.name.endsWith("xls") || file.name.endsWith("xlsx")
                         || (file.name.endsWith("ppt") || file.name.endsWith("pptx")))
                         files.add(fileToMyFile(file))
@@ -173,7 +177,7 @@ class Fileer(var context: Activity) {
         return MyFileModel(file.name,file.absolutePath,file.extension,file.toUri(),file)
     }
 
-    interface FileerList{
+    interface FilerList{
         fun onFileListAquired(list : ArrayList<MyFileModel>)
         fun onFileListFailed()
     }

@@ -9,13 +9,14 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import com.filer.Fileer
+import com.filer.Filer
 import com.filer.MyFileModel
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Environment
 import android.provider.Settings
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
 
@@ -83,10 +84,12 @@ class MainActivity : AppCompatActivity() {
         val progreesDilog = ProgressDialog (this)
         progreesDilog.setMessage("please wait")
         progreesDilog.show()
-        Fileer(this).getFiles("all",object : Fileer.FileerList{
+        Filer(this).getFiles("bin",object : Filer.FilerList{
             override fun onFileListAquired(list: ArrayList<MyFileModel>) {
                 Toast.makeText(this@MainActivity, "Success call", Toast.LENGTH_SHORT).show()
                 Toast.makeText(this@MainActivity, "Size "+list.size, Toast.LENGTH_SHORT).show()
+                for(item in list)
+                    Log.e("***FILE","File path "+item.filePath)
                 progreesDilog.dismiss()
             }
 
